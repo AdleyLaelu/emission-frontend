@@ -64,6 +64,15 @@ export default function ArrowStepper() {
   };
   const handleBack = () => setActiveStep((s) => (s > 0 ? s - 1 : s));
 
+  const handleStepClick = (index) => {
+    if (index === activeStep) return;
+    if (index < activeStep) {
+      setActiveStep(index);
+    } else if (index === activeStep + 1) {
+      handleNext();
+    }
+  };
+
   const getStepStyle = (index) => {
     const isActive = index === activeStep;
     const isCompleted = index < activeStep;
@@ -232,7 +241,11 @@ export default function ArrowStepper() {
           }
         >
           {steps.map((step, index) => (
-            <div key={step} className={getStepStyle(index) + " min-w-[232px]"}>
+            <div
+              key={step}
+              className={getStepStyle(index) + " min-w-[232px]" + (activeStep !== -1 && index !== activeStep ? " cursor-pointer" : "")}
+              onClick={() => activeStep !== -1 && handleStepClick(index)}
+            >
               <span>{step}</span>
             </div>
           ))}
