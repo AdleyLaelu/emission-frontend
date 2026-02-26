@@ -13,18 +13,14 @@ import {
 import zoomPlugin from "chartjs-plugin-zoom";
 
 // --- Static JSON imports (Vite requires static paths) ---
-import GA_CO2 from "../assets/r3data/GA_CO2.json";
-import GA_CH4 from "../assets/r3data/GA_CH4.json";
-import GA_N2O from "../assets/r3data/GA_N2O.json";
-import CA_CO2 from "../assets/r3data/CA_CO2.json";
-import CA_CH4 from "../assets/r3data/CA_CH4.json";
-import CA_N2O from "../assets/r3data/CA_N2O.json";
-import NY_CO2 from "../assets/r3data/NY_CO2.json";
-import NY_CH4 from "../assets/r3data/NY_CH4.json";
-import NY_N2O from "../assets/r3data/NY_N2O.json";
-import WA_CO2 from "../assets/r3data/WA_CO2.json";
-import WA_CH4 from "../assets/r3data/WA_CH4.json";
-import WA_N2O from "../assets/r3data/WA_N2O.json";
+import GA_R1 from "../assets/r1r2data/GA_R1.json";
+import GA_R2 from "../assets/r1r2data/GA_R2.json";
+import CA_R1 from "../assets/r1r2data/CA_R1.json";
+import CA_R2 from "../assets/r1r2data/CA_R2.json";
+import NY_R1 from "../assets/r1r2data/NY_R1.json";
+import NY_R2 from "../assets/r1r2data/NY_R2.json";
+import WA_R1 from "../assets/r1r2data/WA_R1.json";
+import WA_R2 from "../assets/r1r2data/WA_R2.json";
 
 ChartJS.register(
   CategoryScale,
@@ -38,10 +34,10 @@ ChartJS.register(
 );
 
 const DATA_MAP = {
-  GA_CO2, GA_CH4, GA_N2O,
-  CA_CO2, CA_CH4, CA_N2O,
-  NY_CO2, NY_CH4, NY_N2O,
-  WA_CO2, WA_CH4, WA_N2O,
+  GA_R1, GA_R2,
+  CA_R1, CA_R2,
+  NY_R1, NY_R2,
+  WA_R1, WA_R2,
 };
 
 const CITY_TO_STATE = {
@@ -52,19 +48,18 @@ const CITY_TO_STATE = {
   Seattle: "WA",
 };
 
-const SCENARIO_COLORS = [
-  "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
-  "#9467bd", "#8c564b", "#e377c2", "#17becf",
+// 30 distinct colors (tab20-style) for census tracts
+const TRACT_COLORS = [
+  "#1f77b4","#aec7e8","#ff7f0e","#ffbb78","#2ca02c",
+  "#98df8a","#d62728","#ff9896","#9467bd","#c5b0d5",
+  "#8c564b","#c49c94","#e377c2","#f7b6d2","#7f7f7f",
+  "#c7c7c7","#bcbd22","#dbdb8d","#17becf","#9edae5",
+  "#393b79","#637939","#8c6d31","#843c39","#7b4173",
+  "#5254a3","#8ca252","#bd9e39","#ad494a","#a55194",
 ];
 
-const EMISSION_LABELS = {
-  CO2: "CO₂ (lb/MWh)",
-  CH4: "CH₄ (lb/MWh)",
-  N2O: "N₂O (lb/MWh)",
-};
-
 const ZoomToolbar = ({ chartRef }) => (
-  <div className="absolute top-3 right-3 z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none">
+  <div className="absolute top-2 right-2 z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none">
     <button type="button" onClick={() => chartRef.current?.zoom(1.2)}
       className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none" title="Zoom In">+</button>
     <button type="button" onClick={() => chartRef.current?.zoom(0.8)}
@@ -74,35 +69,44 @@ const ZoomToolbar = ({ chartRef }) => (
   </div>
 );
 
-export default function GridChartR3({ emissionType, cityName }) {
+/**
+ * VehicleChartR1R2
+ * Props:
+ *   metric   - "CO2" | "NOx" | "PM2.5B" | "PM2.5T" | "Gasoline" | "Diesel" | "Electricity" | "Ethanol" | "CNG"
+ *   cityName - "Atlanta" | "Los Angeles" | "LosAngeles" | "NewYork" | "Seattle"
+ *   mode     - "R1" (daily) | "R2" (annual)
+ */
+export default function VehicleChartR1R2({ metric, cityName, mode }) {
   const chartRef = useRef(null);
 
   const state = CITY_TO_STATE[cityName] || CITY_TO_STATE[cityName?.replace(/\s/g, "")] || null;
-  const key = state && emissionType ? `${state}_${emissionType}` : null;
-  const jsonData = key ? DATA_MAP[key] : null;
+  const fileKey = state && mode ? `${state}_${mode}` : null;
+  const fileData = fileKey ? DATA_MAP[fileKey] : null;
+  const metricData = fileData && metric ? fileData[metric] : null;
 
-  if (!jsonData) {
+  if (!metricData) {
     return (
       <div className="flex items-center justify-center h-[220px] text-gray-400 text-sm border border-gray-200 rounded-lg bg-gray-50">
-        {!cityName || !emissionType ? "Select a city and emission type to view the chart." : `No data available for ${emissionType} — ${cityName}.`}
+        {!cityName || !metric ? "Select a city and metric to view the chart." : `No data available for ${metric} — ${cityName}.`}
       </div>
     );
   }
 
-  const scenarios = jsonData.scenarios || {};
-  const scenarioNames = Object.keys(scenarios);
-  const labels = (scenarios[scenarioNames[0]] || []).map((p) => p.date);
+  const { labels, unit, tracts } = metricData;
+  const tractIds = Object.keys(tracts);
 
-  const datasets = scenarioNames.map((name, idx) => ({
-    label: name,
-    data: (scenarios[name] || []).map((p) => p.value),
-    borderColor: SCENARIO_COLORS[idx % SCENARIO_COLORS.length],
+  const datasets = tractIds.map((tractId, idx) => ({
+    label: `Tract ${tractId}`,
+    data: tracts[tractId],
+    borderColor: TRACT_COLORS[idx % TRACT_COLORS.length],
     backgroundColor: "rgba(0,0,0,0)",
     borderWidth: 1.5,
     pointRadius: 0,
     pointHoverRadius: 5,
     tension: 0.3,
   }));
+
+  const xLabel = mode === "R1" ? "Hour of Day" : "Year";
 
   const options = {
     responsive: true,
@@ -111,7 +115,7 @@ export default function GridChartR3({ emissionType, cityName }) {
     plugins: {
       legend: { display: false },
       tooltip: {
-        mode: "index",
+        mode: "nearest",
         intersect: false,
         backgroundColor: "#fff",
         titleColor: "#222",
@@ -121,7 +125,7 @@ export default function GridChartR3({ emissionType, cityName }) {
         displayColors: true,
         callbacks: {
           title: (items) => items[0]?.label || "",
-          label: (item) => ` ${item.dataset.label}: ${item.parsed.y?.toFixed(4)}`,
+          label: (item) => ` ${item.dataset.label}: ${item.parsed.y?.toFixed(4)} ${unit}`,
           labelColor: (item) => ({
             borderColor: item.dataset.borderColor,
             backgroundColor: item.dataset.borderColor,
@@ -137,10 +141,10 @@ export default function GridChartR3({ emissionType, cityName }) {
     scales: {
       x: {
         ticks: { maxTicksLimit: 12, maxRotation: 45, font: { size: 11 } },
-        title: { display: true, text: "Date" },
+        title: { display: true, text: xLabel },
       },
       y: {
-        title: { display: true, text: EMISSION_LABELS[emissionType] || emissionType },
+        title: { display: true, text: unit },
       },
     },
   };
