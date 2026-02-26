@@ -11,10 +11,10 @@ import {
   buildR2FileNameFromEmission,
   buildR2FileNameFromFuel,
 } from "../utils/resultsTwoAssets";
-import { getR3EmissionImgUrl } from "../utils/resultsThirdAssets.js";
 import gridData from "../assets/gridData.jpg";
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import GridChartR3 from "./GridChartR3";
 
 const VEHICLE_TYPES = [
   "Combination Long-haul Truck",
@@ -567,158 +567,23 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
             >
               {/* CO2 Grid Chart */}
               <div className="flex flex-col items-center w-full">
-                <div className="relative" style={{ width: "70%", minWidth: 320 }}>
-                  <div className="w-[600px] h-[210px] border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm group" style={{ background: "#f9fafb", position: "relative" }}>
-                    <div className="w-full h-full overflow-auto bg-gray-50" style={{ overflow: "auto", position: "relative" }}>
-                      <img
-                        src={getR3EmissionImgUrl("CO2", cityName)}
-                        alt="CO2 Grid Emission"
-                        className="transition-all duration-200 ease-out origin-top-left max-w-none object-contain rounded"
-                        style={{
-                          width: `${gridZoomCO2 * 100}%`,
-                          height: "auto",
-                          display: "block",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </div>
-                    <div className="absolute z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none" style={{ top: 16, right: 16 }}>
-                      <button
-                        onClick={() =>
-                          handleGridZoomIn(setGridZoomCO2, gridZoomCO2)
-                        }
-                        className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-                        disabled={gridZoomCO2 >= MAX_ZOOM}
-                        title="Zoom In"
-                        type="button"
-                      >
-                        +
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleGridZoomOut(setGridZoomCO2, gridZoomCO2)
-                        }
-                        className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-                        disabled={gridZoomCO2 <= MIN_ZOOM}
-                        title="Zoom Out"
-                        type="button"
-                      >
-                        -
-                      </button>
-                      <button
-                        onClick={() => handleGridResetZoom(setGridZoomCO2)}
-                        className="px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-gray-50 uppercase tracking-wide transition-colors"
-                        title="Reset Zoom"
-                        type="button"
-                      >
-                        RESET
-                      </button>
-                    </div>
-                  </div>
+                <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
+                  <div className="text-xs font-semibold text-gray-500 mb-1">CO₂</div>
+                  <GridChartR3 emissionType="CO2" cityName={cityName} />
                 </div>
               </div>
               {/* CH4 Grid Chart */}
               <div className="flex flex-col items-center w-full">
-                <div className="relative" style={{ width: "70%", minWidth: 320 }}>
-                  <div className="w-[600px] h-[210px] border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm group" style={{ background: "#f9fafb", position: "relative" }}>
-                    <div className="w-full h-full overflow-auto bg-gray-50" style={{ overflow: "auto", position: "relative" }}>
-                      <img
-                        src={getR3EmissionImgUrl("CH4", cityName)}
-                        alt="CH4 Grid Emission"
-                        className="transition-all duration-200 ease-out origin-top-left max-w-none object-contain rounded"
-                        style={{
-                          width: `${gridZoomCH4 * 100}%`,
-                          height: "auto",
-                          display: "block",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </div>
-                    <div className="absolute z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none" style={{ top: 16, right: 16 }}>
-                      <button
-                        onClick={() =>
-                          handleGridZoomIn(setGridZoomCH4, gridZoomCH4)
-                        }
-                        className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-                        disabled={gridZoomCH4 >= MAX_ZOOM}
-                        title="Zoom In"
-                        type="button"
-                      >
-                        +
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleGridZoomOut(setGridZoomCH4, gridZoomCH4)
-                        }
-                        className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-                        disabled={gridZoomCH4 <= MIN_ZOOM}
-                        title="Zoom Out"
-                        type="button"
-                      >
-                        -
-                      </button>
-                      <button
-                        onClick={() => handleGridResetZoom(setGridZoomCH4)}
-                        className="px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-gray-50 uppercase tracking-wide transition-colors"
-                        title="Reset Zoom"
-                        type="button"
-                      >
-                        RESET
-                      </button>
-                    </div>
-                  </div>
+                <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
+                  <div className="text-xs font-semibold text-gray-500 mb-1">CH₄</div>
+                  <GridChartR3 emissionType="CH4" cityName={cityName} />
                 </div>
               </div>
               {/* N2O Grid Chart */}
               <div className="flex flex-col items-center w-full">
-                <div className="relative" style={{ width: "70%", minWidth: 320 }}>
-                  <div className="w-[600px] h-[210px] border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm group" style={{ background: "#f9fafb", position: "relative" }}>
-                    <div className="w-full h-full overflow-auto bg-gray-50" style={{ overflow: "auto", position: "relative" }}>
-                      <img
-                        src={getR3EmissionImgUrl("N2O", cityName)}
-                        alt="N2O Grid Emission"
-                        className="transition-all duration-200 ease-out origin-top-left max-w-none object-contain rounded"
-                        style={{
-                          width: `${gridZoomN2O * 100}%`,
-                          height: "auto",
-                          display: "block",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    </div>
-                    <div className="absolute z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none" style={{ top: 16, right: 16 }}>
-                      <button
-                        onClick={() =>
-                          handleGridZoomIn(setGridZoomN2O, gridZoomN2O)
-                        }
-                        className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-                        disabled={gridZoomN2O >= MAX_ZOOM}
-                        title="Zoom In"
-                        type="button"
-                      >
-                        +
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleGridZoomOut(setGridZoomN2O, gridZoomN2O)
-                        }
-                        className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-                        disabled={gridZoomN2O <= MIN_ZOOM}
-                        title="Zoom Out"
-                        type="button"
-                      >
-                        -
-                      </button>
-                      <button
-                        onClick={() => handleGridResetZoom(setGridZoomN2O)}
-                        className="px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-gray-50 uppercase tracking-wide transition-colors"
-                        title="Reset Zoom"
-                        type="button"
-                      >
-                        RESET
-                      </button>
-                    </div>
-                  </div>
+                <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
+                  <div className="text-xs font-semibold text-gray-500 mb-1">N₂O</div>
+                  <GridChartR3 emissionType="N2O" cityName={cityName} />
                 </div>
               </div>
             </div>
