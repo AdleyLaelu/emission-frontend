@@ -1,5 +1,4 @@
 import useAppStore from "../useAppStore";
-import gridData from "../assets/gridData.jpg";
 import Button from "@mui/material/Button";
 import { useState } from "react";
 import GridChartR3 from "./GridChartR3";
@@ -138,24 +137,20 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
             <div className="flex flex-col gap-8 flex-1">
               {/* Fuel Chart */}
               {fuelType && (
-                <div className="flex flex-col items-center w-full">
-                  <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
-                    <div className="text-xs font-semibold text-gray-500 mb-1">{fuelType} Consumption</div>
-                    <VehicleChartR1R2 metric={fuelType} cityName={cityName} mode={chartMode} />
-                  </div>
+                <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-3">
+                  <div className="text-xs font-semibold text-gray-500 mb-1">{fuelType} Consumption</div>
+                  <VehicleChartR1R2 metric={fuelType} cityName={cityName} mode={chartMode} />
                 </div>
               )}
               {/* Emission Chart */}
               {emissionType && (
-                <div className="flex flex-col items-center w-full">
-                  <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
-                    <div className="text-xs font-semibold text-gray-500 mb-1"
-                      dangerouslySetInnerHTML={{
-                        __html: `${emissionType.replace("CO2","CO<sub>2</sub>").replace("NOx","NO<sub>x</sub>")} Emission`,
-                      }}
-                    />
-                    <VehicleChartR1R2 metric={emissionType} cityName={cityName} mode={chartMode} />
-                  </div>
+                <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-3">
+                  <div className="text-xs font-semibold text-gray-500 mb-1"
+                    dangerouslySetInnerHTML={{
+                      __html: `${emissionType.replace("CO2","CO<sub>2</sub>").replace("NOx","NO<sub>x</sub>")} Emission`,
+                    }}
+                  />
+                  <VehicleChartR1R2 metric={emissionType} cityName={cityName} mode={chartMode} />
                 </div>
               )}
             </div>
@@ -189,50 +184,21 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
         )}
 
         {resultsSelection === "GRID" && (
-          <div className="flex flex-row gap-16 items-center justify-center">
-            {/* Grid Charts Section - Shifted 50px to the right using transform */}
-            <div
-              className="flex flex-col gap-6 flex-1"
-              style={{ alignItems: "flex-end", transform: "translateX(50px)" }}
-            >
-              {/* CO2 Grid Chart */}
-              <div className="flex flex-col items-center w-full">
-                <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
-                  <div className="text-xs font-semibold text-gray-500 mb-1">CO₂</div>
-                  <GridChartR3 emissionType="CO2" cityName={cityName} />
-                </div>
-              </div>
-              {/* CH4 Grid Chart */}
-              <div className="flex flex-col items-center w-full">
-                <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
-                  <div className="text-xs font-semibold text-gray-500 mb-1">CH₄</div>
-                  <GridChartR3 emissionType="CH4" cityName={cityName} />
-                </div>
-              </div>
-              {/* N2O Grid Chart */}
-              <div className="flex flex-col items-center w-full">
-                <div className="w-[600px] border border-gray-200 rounded-lg bg-white shadow-sm p-3">
-                  <div className="text-xs font-semibold text-gray-500 mb-1">N₂O</div>
-                  <GridChartR3 emissionType="N2O" cityName={cityName} />
-                </div>
-              </div>
+          <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto">
+            {/* CO2 Grid Chart */}
+            <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+              <div className="text-xs font-semibold text-gray-500 mb-2">CO₂</div>
+              <GridChartR3 emissionType="CO2" cityName={cityName} />
             </div>
-
-            {/* Grid Legend Section */}
-            <div
-              className="flex flex-col gap-4 flex-shrink-0 items-center"
-              style={{ alignItems: "flex-end", marginLeft: "40px" }}
-            >
-              <img
-                src={gridData}
-                alt="Grid Scenarios Legend"
-                className="h-[220px] object-contain rounded border border-gray-100"
-                style={{
-                  maxWidth: "420px",
-                  marginTop: "15px",
-                  transform: "translateX(120px)",
-                }}
-              />
+            {/* CH4 Grid Chart */}
+            <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+              <div className="text-xs font-semibold text-gray-500 mb-2">CH₄</div>
+              <GridChartR3 emissionType="CH4" cityName={cityName} />
+            </div>
+            {/* N2O Grid Chart */}
+            <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
+              <div className="text-xs font-semibold text-gray-500 mb-2">N₂O</div>
+              <GridChartR3 emissionType="N2O" cityName={cityName} />
             </div>
           </div>
         )}
