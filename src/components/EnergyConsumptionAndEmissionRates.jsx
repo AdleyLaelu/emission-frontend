@@ -396,12 +396,12 @@ export default function EnergyConsumptionAndEmissionRates() {
       {/* Left: controls */}
       <div className="flex flex-col gap-6">
         <form
-          className="flex items-end gap-4 p-4 rounded"
+          className="flex items-end gap-6 p-6 rounded"
           onSubmit={(e) => e.preventDefault()}
         >
           {/* Fuel Type */}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-600">
               Fuel Type
             </label>
             <select
@@ -409,7 +409,7 @@ export default function EnergyConsumptionAndEmissionRates() {
               onChange={(e) => {
                 setConsumptionAndEmissionState({ FuelType: e.target.value });
               }}
-              className="border rounded px-2 py-1 w-70"
+              className="border rounded px-3 py-2 w-70"
             >
               <option value="">Select Fuel Type</option>
               {FUEL_TYPES.map((ft) => (
@@ -421,8 +421,8 @@ export default function EnergyConsumptionAndEmissionRates() {
           </div>
 
           {/* Emission Type */}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-600">
               Emission Type
             </label>
             <select
@@ -430,8 +430,7 @@ export default function EnergyConsumptionAndEmissionRates() {
               onChange={(e) => {
                 setConsumptionAndEmissionState({ EmissionType: e.target.value });
               }}
-              className="border rounded px-2 py-1 w-48"
-              // Use ref to access the select for custom rendering
+              className="border rounded px-3 py-2 w-48"
             >
               <option value="">Select Emission Type</option>
               {(fuelType === "Electricity"
@@ -455,13 +454,13 @@ export default function EnergyConsumptionAndEmissionRates() {
           </div>
 
           {/* Vehicle Age */}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-600">
               Vehicle Age
             </label>
             <select
               value={vehicleAge}
-              className="border rounded px-2 py-1 w-32"
+              className="border rounded px-3 py-2 w-32"
               onChange={(e) => {
                 setConsumptionAndEmissionState({ VehicleAge: e.target.value });
               }}
@@ -478,12 +477,12 @@ export default function EnergyConsumptionAndEmissionRates() {
           </div>
 
           {/* City (disabled; chosen previously) */}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-600">City</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-gray-600">City</label>
             <select
               value={selectedCityName}
               disabled
-              className={`bg-gray-300 text-gray-600 rounded px-2 py-1 w-35`}
+              className={`bg-gray-300 text-gray-600 rounded px-3 py-2 w-35`}
             >
               <option value="">City</option>
               {statesList.slice(1).map((st) => (

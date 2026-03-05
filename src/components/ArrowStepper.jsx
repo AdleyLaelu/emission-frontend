@@ -336,7 +336,7 @@ export default function ArrowStepper() {
             </div>
           )}
           {activeStep === 2 && (
-            <div className="flex flex-row items-center gap-4 p-4 bg-white">
+            <div className="p-4 bg-white" style={{ height: "calc(100vh - 390px)" }}>
               <FinalResultsPage
                 resultsSelection={resultsSelection}
                 setResultsSelection={setResultsSelection}

@@ -1,208 +1,225 @@
 import useAppStore from "../useAppStore";
-import Button from "@mui/material/Button";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import GridChartR3 from "./GridChartR3";
 import VehicleChartR1R2 from "./VehicleChartR1R2";
+import CityTractMap from "./CityTractMap";
 
+import GA_R1 from "../assets/r1r2data/GA_R1.json";
+import GA_R2 from "../assets/r1r2data/GA_R2.json";
+import CA_R1 from "../assets/r1r2data/CA_R1.json";
+import CA_R2 from "../assets/r1r2data/CA_R2.json";
+import NY_R1 from "../assets/r1r2data/NY_R1.json";
+import NY_R2 from "../assets/r1r2data/NY_R2.json";
+import WA_R1 from "../assets/r1r2data/WA_R1.json";
+import WA_R2 from "../assets/r1r2data/WA_R2.json";
+
+const DATA_MAP = { GA_R1, GA_R2, CA_R1, CA_R2, NY_R1, NY_R2, WA_R1, WA_R2 };
+const CITY_TO_STATE = {
+  Atlanta: "GA", "Los Angeles": "CA", LosAngeles: "CA", NewYork: "NY", Seattle: "WA",
+};
+
+const FUEL_TYPES = ["CNG", "Diesel", "Electricity", "Ethanol", "Gasoline"];
+const EMISSION_TYPES = [
+  { label: "CO₂", value: "CO2" },
+  { label: "NOₓ", value: "NOx" },
+  { label: "PM2.5B", value: "PM2.5B" },
+  { label: "PM2.5T", value: "PM2.5T" },
+];
+
+const Dropdown = ({ label, value, onChange, options }) => (
+  <div className="flex flex-col gap-[2px]">
+    <label className="text-xs font-medium text-gray-600">{label}</label>
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="border rounded px-2 py-1 w-full text-sm"
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>{o.label}</option>
+      ))}
+    </select>
+  </div>
+);
+
+function downloadCsv(cityName, chartMode) {
+  const state = CITY_TO_STATE[cityName] || CITY_TO_STATE[cityName?.replace(/\s/g, "")] || null;
+  if (!state) return;
+  const fileData = DATA_MAP[`${state}_${chartMode}`];
+  if (!fileData) return;
+  const metrics  = Object.keys(fileData);
+  const tractIds = Object.keys(fileData[metrics[0]]?.tracts || {});
+  const labels   = fileData[metrics[0]]?.labels || [];
+  const header   = ["Label", ...metrics.flatMap(m => tractIds.map(t => `${m}_${t}`))];
+  const rows     = labels.map((lbl, i) => [
+    lbl, ...metrics.flatMap(m => tractIds.map(t => fileData[m]?.tracts?.[t]?.[i] ?? "")),
+  ]);
+  const csv  = [header, ...rows].map(r => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = `${cityName}_${chartMode}_emissions.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
 
 const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
   const [dailyAnnualSelection, setDailyAnnualSelection] = useState("DAILY");
-  const ConsumptionAndEmissionState = useAppStore(
-    (s) => s.ConsumptionAndEmission
-  );
-  const setConsumptionAndEmissionState = useAppStore(
-    (s) => s.setConsumptionAndEmission
-  );
-  const theme = useAppStore((s) => s.theme);
-  const classificationState = useAppStore((state) => state.classificationState);
-  const FUEL_TYPES = ["CNG", "Diesel", "Electricity", "Ethanol", "Gasoline"];
-  const EMISSION_TYPES = [
-    { label: "CO₂", value: "CO2" },
-    { label: "NOₓ", value: "NOx" },
-    { label: "PM2.5B", value: "PM2.5B" },
-    { label: "PM2.5T", value: "PM2.5T" },
-  ];
-  const cityName = classificationState.city || classificationState.cityInput;
-  const fuelType = ConsumptionAndEmissionState.FuelType || "";
+  const [selectedTractId, setSelectedTractId] = useState(null);
+  const [hoveredTractId,  setHoveredTractId]  = useState(null);
+
+  const ConsumptionAndEmissionState    = useAppStore((s) => s.ConsumptionAndEmission);
+  const setConsumptionAndEmissionState = useAppStore((s) => s.setConsumptionAndEmission);
+  const classificationState = useAppStore((s) => s.classificationState);
+
+  const cityName     = classificationState.city || classificationState.cityInput;
+  const fuelType     = ConsumptionAndEmissionState.FuelType || "";
   const emissionType = ConsumptionAndEmissionState.EmissionType || "";
-  const chartMode = dailyAnnualSelection === "DAILY" ? "R1" : "R2";
+  const chartMode    = dailyAnnualSelection === "DAILY" ? "R1" : "R2";
+  const showVehicle  = resultsSelection === "VEHICLE";
+
+  const handleTractSelect = useCallback((id) => setSelectedTractId(id), []);
+  const handleTractHover  = useCallback((id) => setHoveredTractId(id),  []);
+
   return (
-    <div className="flex flex-col gap-6">
-      {/* Control Panel - All dropdowns in one row */}
-      <div className="flex flex-row gap-4 justify-center items-end">
-        <div className="flex flex-col gap-[2px]">
-          <label className="text-xs font-medium text-gray-600">
-            Vehicle / Grid
-          </label>
-          <select
-            value={resultsSelection}
-            onChange={(e) => {
-              setResultsSelection(e.target.value);
-            }}
-            className="border rounded px-2 py-1 w-48"
-          >
-            <option value="">Select Vehicle/Grid</option>
-            <option value="VEHICLE">Vehicle</option>
-            <option value="GRID">Grid</option>
-          </select>
-        </div>
+    /*
+     * 3-column layout
+     *   LEFT   flex-[3]  — charts
+     *   MIDDLE flex-[2]  — city name + map (fills height)
+     *   RIGHT  flex-[1]  — Vehicle/Grid, Daily/Annual, Download
+     */
+    <div className="flex flex-row gap-4 w-full h-full">
 
-        {resultsSelection !== "GRID" && (
-          <div className="flex flex-col gap-[2px]">
-            <label className="text-xs font-medium text-gray-600">
-              Daily / Annual
-            </label>
-            <select
-              value={dailyAnnualSelection}
-              onChange={(e) => {
-                setDailyAnnualSelection(e.target.value);
-              }}
-              className="border rounded px-2 py-1 w-48"
-            >
-              <option value="">Select Daily/Annual</option>
-              <option value="DAILY">Daily</option>
-              <option value="ANNUAL">Annual</option>
-            </select>
-          </div>
-        )}
+      {/* ── LEFT: Charts ────────────────────────────────────────────── */}
+      <div className="flex-[3] min-w-0 min-h-0 flex flex-col gap-3">
 
-        {resultsSelection === "VEHICLE" && (
+        {showVehicle && (
           <>
-            <div className="flex flex-col gap-[2px]">
-              <label className="text-xs font-medium text-gray-600">
-                Fuel Type
-              </label>
-              <select
+            <div className="flex-1 min-h-0 flex flex-col gap-1">
+              <Dropdown
+                label="Fuel Type"
                 value={fuelType}
-                onChange={(e) => {
-                  setConsumptionAndEmissionState({ FuelType: e.target.value });
-                }}
-                className="border rounded px-2 py-1 w-48"
-              >
-                <option value="">Select Fuel Type</option>
-                {FUEL_TYPES.map((ft) => (
-                  <option key={ft} value={ft}>
-                    {ft}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-[2px]">
-              <label className="text-xs font-medium text-gray-600">
-                Emission Type
-              </label>
-              <select
-                value={emissionType}
-                onChange={(e) => {
-                  setConsumptionAndEmissionState({
-                    EmissionType: e.target.value,
-                  });
-                }}
-                className="border rounded px-2 py-1 w-48"
-              >
-                <option value="">Select Emission Type</option>
-                {EMISSION_TYPES.map((et) => (
-                  <option
-                    key={et.label}
-                    value={et.value}
-                    dangerouslySetInnerHTML={{ __html: et.label }}
-                  />
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-[2px]">
-              <label className="text-xs font-medium text-gray-600">City</label>
-              <select
-                disabled
-                className={`border rounded px-2 py-1 w-48 bg-gray-300 cursor-not-allowed ${
-                  theme === "dark"
-                    ? "bg-[#18181b] text-white border-gray-700"
-                    : "text-gray-700 border-gray-400"
-                }`}
-              >
-                <option>{classificationState.city || "City"}</option>
-              </select>
-            </div>
-          </>
-        )}
-
-      </div>
-
-      {/* Content Area - Charts and Map */}
-      <div className="flex flex-row gap-6 items-center">
-        {resultsSelection === "VEHICLE" && (
-          <>
-            <div className="flex flex-col gap-8 flex-1">
-              {/* Fuel Chart */}
+                onChange={(v) => setConsumptionAndEmissionState({ FuelType: v })}
+                options={[{ value: "", label: "Select Fuel Type" }, ...FUEL_TYPES.map(f => ({ value: f, label: f }))]}
+              />
               {fuelType && (
-                <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-3">
-                  <div className="text-xs font-semibold text-gray-500 mb-1">{fuelType} Consumption</div>
-                  <VehicleChartR1R2 metric={fuelType} cityName={cityName} mode={chartMode} />
-                </div>
-              )}
-              {/* Emission Chart */}
-              {emissionType && (
-                <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-3">
-                  <div className="text-xs font-semibold text-gray-500 mb-1"
-                    dangerouslySetInnerHTML={{
-                      __html: `${emissionType.replace("CO2","CO<sub>2</sub>").replace("NOx","NO<sub>x</sub>")} Emission`,
-                    }}
+                <div className="flex-1 min-h-0 w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1">
+                  <VehicleChartR1R2
+                    metric={fuelType} cityName={cityName} mode={chartMode}
+                    selectedTractId={selectedTractId} hoveredTractId={hoveredTractId}
+                    onTractSelect={handleTractSelect}
                   />
-                  <VehicleChartR1R2 metric={emissionType} cityName={cityName} mode={chartMode} />
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-4 flex-shrink-0 ml-4">
-              {/* Census Tract Legend */}
-              <div
-                style={{
-                  minWidth: 200,
-                  padding: 12,
-                  border: "1px solid rgba(0,0,0,0.2)",
-                  borderRadius: 8,
-                  background: "rgba(255,255,255,0.88)",
-                  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                  fontSize: 12,
-                  color: "#555",
-                }}
-              >
-                <div style={{ fontWeight: "bold", marginBottom: 6, fontSize: 13 }}>
-                  About the chart
+
+            <div className="flex-1 min-h-0 flex flex-col gap-1">
+              <Dropdown
+                label="Emission Type"
+                value={emissionType}
+                onChange={(v) => setConsumptionAndEmissionState({ EmissionType: v })}
+                options={[{ value: "", label: "Select Emission Type" }, ...EMISSION_TYPES.map(e => ({ value: e.value, label: e.label }))]}
+              />
+              {emissionType && (
+                <div className="flex-1 min-h-0 w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1">
+                  <VehicleChartR1R2
+                    metric={emissionType} cityName={cityName} mode={chartMode}
+                    selectedTractId={selectedTractId} hoveredTractId={hoveredTractId}
+                    onTractSelect={handleTractSelect}
+                  />
                 </div>
-                <p>Each line represents one <strong>census tract</strong> — a geographic sub-area of the selected city.</p>
-                <p style={{ marginTop: 8 }}>Hover to inspect individual tract values. Scroll to zoom, drag to pan.</p>
-                <p style={{ marginTop: 8, color: "#888" }}>
-                  {dailyAnnualSelection === "DAILY"
-                    ? "R1 — Daily emissions by hour of day"
-                    : "R2 — Annual emissions by year (2024–2030)"}
-                </p>
-              </div>
+              )}
             </div>
           </>
         )}
 
         {resultsSelection === "GRID" && (
-          <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto">
-            {/* CO2 Grid Chart */}
-            <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-              <div className="text-xs font-semibold text-gray-500 mb-2">CO₂</div>
-              <GridChartR3 emissionType="CO2" cityName={cityName} />
-            </div>
-            {/* CH4 Grid Chart */}
-            <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-              <div className="text-xs font-semibold text-gray-500 mb-2">CH₄</div>
-              <GridChartR3 emissionType="CH4" cityName={cityName} />
-            </div>
-            {/* N2O Grid Chart */}
-            <div className="p-3 rounded-lg bg-gray-50 border border-gray-200">
-              <div className="text-xs font-semibold text-gray-500 mb-2">N₂O</div>
-              <GridChartR3 emissionType="N2O" cityName={cityName} />
-            </div>
+          <div className="flex flex-col gap-3 h-full overflow-auto">
+            {["CO2", "CH4", "N2O"].map((e, i) => (
+              <div key={e} className="p-2 rounded-lg bg-gray-50 border border-gray-200">
+                <div className="text-xs font-semibold text-gray-500 mb-1">
+                  {["CO₂", "CH₄", "N₂O"][i]}
+                </div>
+                <GridChartR3 emissionType={e} cityName={cityName} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!resultsSelection && (
+          <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+            Select a type from the right panel to view results.
           </div>
         )}
       </div>
+
+      {/* ── MIDDLE: City name + Map ──────────────────────────────────── */}
+      {showVehicle && cityName && (
+        <div className="flex-[2] min-w-0 min-h-0 flex flex-col gap-1">
+          {/* City name above map */}
+          <div className="text-base font-bold text-gray-800 tracking-tight flex-shrink-0">
+            {cityName}
+          </div>
+          {/* Map fills remaining height */}
+          <div className="flex-1 min-h-0">
+            <CityTractMap
+              cityName={cityName} mode={chartMode}
+              selectedTractId={selectedTractId} hoveredTractId={hoveredTractId}
+              onTractSelect={handleTractSelect} onTractHover={handleTractHover}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── RIGHT: Controls ──────────────────────────────────────────── */}
+      <div className="flex-[1] min-w-0 min-h-0 flex flex-col gap-2">
+
+        {/* Vehicle / Grid */}
+        <div className="flex-shrink-0">
+          <Dropdown
+            label="Vehicle / Grid"
+            value={resultsSelection}
+            onChange={setResultsSelection}
+            options={[
+              { value: "", label: "Select..." },
+              { value: "VEHICLE", label: "Vehicle" },
+              { value: "GRID", label: "Grid" },
+            ]}
+          />
+        </div>
+
+        {/* Daily / Annual */}
+        {showVehicle && (
+          <div className="flex-shrink-0">
+            <Dropdown
+              label="Daily / Annual"
+              value={dailyAnnualSelection}
+              onChange={setDailyAnnualSelection}
+              options={[
+                { value: "DAILY", label: "Daily" },
+                { value: "ANNUAL", label: "Annual" },
+              ]}
+            />
+          </div>
+        )}
+
+        {/* Download */}
+        {cityName && showVehicle && (
+          <div className="flex-shrink-0 mt-2">
+            <button
+              type="button"
+              onClick={() => downloadCsv(cityName, chartMode)}
+              className="w-full flex items-center justify-center gap-1.5 border border-gray-300 rounded-lg px-2 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download CSV
+            </button>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };

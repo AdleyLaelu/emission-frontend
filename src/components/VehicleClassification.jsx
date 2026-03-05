@@ -228,11 +228,11 @@ function VehicleClassification({ activeStep }) {
       {/* Left panel: form + table */}
       <div className="flex-1 flex flex-col items-center">
         <div className="w-full max-w-3xl mx-auto flex flex-col gap-6">
-          <form className="flex flex-col gap-2 md:gap-4 p-2 md:p-4 rounded transition-colors duration-300 w-full min-w-0 overflow-x-auto">
-            <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full">
+          <form className="flex flex-col gap-4 md:gap-6 p-4 md:p-6 rounded transition-colors duration-300 w-full min-w-0 overflow-x-auto">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full">
               {/* Base Year */}
-              <div className="flex flex-col gap-1 min-w-[80px] max-w-[100px] w-auto">
-                <label className="text-xs font-medium text-gray-600">
+              <div className="flex flex-col gap-1.5 min-w-[90px] max-w-[120px] w-auto">
+                <label className="text-sm font-medium text-gray-600">
                   Base Year
                 </label>
                 <select
@@ -240,7 +240,7 @@ function VehicleClassification({ activeStep }) {
                   onChange={(e) =>
                     setClassificationState({ baseYear: e.target.value })
                   }
-                  className={`border rounded px-2 py-1 w-full h-[32px] transition-colors duration-300 ${
+                  className={`border rounded px-3 py-2 w-full transition-colors duration-300 ${
                     theme === "dark"
                       ? "bg-[#18181b] text-white border-gray-700"
                       : "bg-white text-black border-gray-300"
@@ -258,8 +258,8 @@ function VehicleClassification({ activeStep }) {
                 </select>
               </div>
               {/* Vehicle Type */}
-              <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <label className="text-xs font-medium text-gray-600">
+              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                <label className="text-sm font-medium text-gray-600">
                   Vehicle Type
                 </label>
                 <select
@@ -268,7 +268,7 @@ function VehicleClassification({ activeStep }) {
                     setClassificationState({ vehicleType: e.target.value })
                   }
                   disabled={classificationState.city === ""}
-                  className={`border rounded px-2 py-1 w-full transition-colors duration-300 ${
+                  className={`border rounded px-3 py-2 w-full transition-colors duration-300 ${
                     theme === "dark"
                       ? "bg-[#18181b] text-white border-gray-700"
                       : "bg-white text-black border-gray-300"
@@ -302,8 +302,8 @@ function VehicleClassification({ activeStep }) {
                 </select>
               </div>
               {/* City */}
-              <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <label className="text-xs font-medium text-gray-600">
+              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                <label className="text-sm font-medium text-gray-600">
                   City
                 </label>
                 <select
@@ -323,7 +323,7 @@ function VehicleClassification({ activeStep }) {
                       vehicleType: "",   // Reset Vehicle Type
                     });
                   }}
-                  className={`border rounded px-2 py-1 w-full transition-colors duration-300 ${
+                  className={`border rounded px-3 py-2 w-full transition-colors duration-300 ${
                     theme === "dark"
                       ? "bg-[#18181b] text-white border-gray-700"
                       : "bg-white text-black border-gray-300"
@@ -341,7 +341,7 @@ function VehicleClassification({ activeStep }) {
             {/* Upload Vehicle Classification button below City, right-aligned and smaller */}
             <div className="flex w-full justify-end mt-2">
               <label
-                className={`flex items-center font-semibold px-3 py-1.5 rounded cursor-pointer h-[36px] text-sm transition-colors duration-300 whitespace-nowrap w-full max-w-[300px]
+                className={`flex items-center font-semibold px-4 py-2.5 rounded cursor-pointer h-[44px] text-base transition-colors duration-300 whitespace-nowrap w-full max-w-[300px]
                   ${
                     theme === "dark"
                       ? "bg-blue-900 text-white"

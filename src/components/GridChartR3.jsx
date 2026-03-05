@@ -39,8 +39,14 @@ const CITY_TO_STATE = {
 };
 
 const SCENARIO_COLORS = [
-  "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728",
-  "#9467bd", "#8c564b", "#e377c2", "#17becf",
+  "gold",           // Scenario 1 — Mid-case
+  "darkorange",     // Scenario 2 — Low Renewable Energy
+  "mediumseagreen", // Scenario 3 — High Renewable Energy
+  "steelblue",      // Scenario 4 — High Demand Growth
+  "orchid",         // Scenario 5 — Low Natural Gas Prices
+  "slateblue",      // Scenario 6 — High Natural Gas Prices
+  "firebrick",      // Scenario 7 — 95% Decarbonization
+  "teal",           // Scenario 8 — 100% Decarbonization
 ];
 
 const EMISSION_LABELS = {
@@ -49,10 +55,15 @@ const EMISSION_LABELS = {
   N2O: "N₂O (lb/MWh)",
 };
 
-function hexToRgba(hex, alpha) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
+// Resolve any CSS color (named or hex) to rgba via a temporary canvas
+const _colorCanvas = document.createElement("canvas");
+_colorCanvas.width = _colorCanvas.height = 1;
+const _colorCtx = _colorCanvas.getContext("2d");
+function toRgba(color, alpha) {
+  _colorCtx.clearRect(0, 0, 1, 1);
+  _colorCtx.fillStyle = color;
+  _colorCtx.fillRect(0, 0, 1, 1);
+  const [r, g, b] = _colorCtx.getImageData(0, 0, 1, 1).data;
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
@@ -133,7 +144,7 @@ export default function GridChartR3({ emissionType, cityName }) {
         ds.pointRadius = ptRadiusDefault;
         ds.pointBorderWidth = ptBorderDefault;
       } else {
-        ds.borderColor = hexToRgba(base, 0.1);
+        ds.borderColor = toRgba(base, 0.1);
         ds.borderWidth = 1;
         ds.pointRadius = ptRadiusNone;
         ds.pointBorderWidth = ptRadiusNone;
@@ -153,13 +164,13 @@ export default function GridChartR3({ emissionType, cityName }) {
           ds.pointRadius = ptRadiusDefault;
           ds.pointBorderWidth = ptBorderDefault;
         } else {
-          ds.borderColor = hexToRgba(base, 0.6);
+          ds.borderColor = toRgba(base, 0.6);
           ds.borderWidth = 1;
           ds.pointRadius = ptRadiusNone;
           ds.pointBorderWidth = ptRadiusNone;
         }
       } else {
-        ds.borderColor = hexToRgba(base, 0.7);
+        ds.borderColor = toRgba(base, 0.7);
         ds.borderWidth = 1.5;
         ds.pointRadius = ptRadiusDefault;
         ds.pointBorderWidth = ptBorderDefault;
@@ -180,12 +191,12 @@ export default function GridChartR3({ emissionType, cityName }) {
       pointRadius = ptRadiusDefault;
       pointBorderWidth = ptBorderDefault;
     } else if (selectedIdx !== null) {
-      borderColor = hexToRgba(color, 0.6);
+      borderColor = toRgba(color, 0.6);
       borderWidth = 1;
       pointRadius = ptRadiusNone;
       pointBorderWidth = ptRadiusNone;
     } else {
-      borderColor = hexToRgba(color, 0.7);
+      borderColor = toRgba(color, 0.7);
       borderWidth = 1.5;
       pointRadius = ptRadiusDefault;
       pointBorderWidth = ptBorderDefault;

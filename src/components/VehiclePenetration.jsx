@@ -232,11 +232,11 @@ function VehiclePenetration({ activeStep }) {
       {/* Left panel: form + table */}
       <div className="flex-1 flex flex-col items-center">
         <div className="w-full max-w-3xl mx-auto flex flex-col gap-6">
-          <form className="flex flex-col gap-2 md:gap-4 p-2 md:p-4 rounded transition-colors duration-300 w-full min-w-0 overflow-x-auto">
-            <div className="flex flex-col md:flex-row gap-2 md:gap-4 w-full items-end">
+          <form className="flex flex-col gap-4 md:gap-6 p-4 md:p-6 rounded transition-colors duration-300 w-full min-w-0 overflow-x-auto">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 w-full items-end">
               {/* Projected Year */}
-              <div className="flex flex-col gap-1 min-w-[80px] max-w-[100px] w-auto">
-                <label className="text-xs font-medium text-gray-600">Year</label>
+              <div className="flex flex-col gap-1.5 min-w-[90px] max-w-[120px] w-auto">
+                <label className="text-sm font-medium text-gray-600">Year</label>
                 <select
                   value={penetrationState.projectedYear || ""}
                   onChange={(e) => {
@@ -248,7 +248,7 @@ function VehiclePenetration({ activeStep }) {
                       penetrationFile: null,
                     });
                   }}
-                  className={`border rounded px-2 py-1 w-full h-[32px] ${
+                  className={`border rounded px-3 py-2 w-full ${
                     theme === "dark"
                       ? "bg-[#18181b] text-white border-gray-700"
                       : ""
@@ -267,12 +267,12 @@ function VehiclePenetration({ activeStep }) {
                 </select>
               </div>
               {/* Base Year */}
-              <div className="flex flex-col gap-1 min-w-[80px] max-w-[100px] w-auto">
-                <label className="text-xs font-medium text-gray-600">Base Year</label>
+              <div className="flex flex-col gap-1.5 min-w-[90px] max-w-[120px] w-auto">
+                <label className="text-sm font-medium text-gray-600">Base Year</label>
                 <select
                   value={classificationState.baseYear || ""}
                   disabled
-                  className={`bg-gray-300 text-gray-600 rounded px-2 py-1 w-full h-[32px] ${
+                  className={`bg-gray-300 text-gray-600 rounded px-3 py-2 w-full ${
                     theme === "dark" ? "border-gray-700" : "border-white"
                   }`}
                 >
@@ -280,15 +280,15 @@ function VehiclePenetration({ activeStep }) {
                 </select>
               </div>
               {/* Vehicle Type */}
-              <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <label className="text-xs font-medium text-gray-600">Vehicle Type</label>
+              <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                <label className="text-sm font-medium text-gray-600">Vehicle Type</label>
                 <select
                   value={classificationState.vehicleType}
                   onChange={(e) =>
                     setClassificationState({ vehicleType: e.target.value })
                   }
                   disabled={classificationState.city === ""}
-                  className={`border rounded px-2 py-1 w-full transition-colors duration-300 ${
+                  className={`border rounded px-3 py-2 w-full transition-colors duration-300 ${
                     theme === "dark"
                       ? "bg-[#18181b] text-white border-gray-700"
                       : "bg-white text-black border-gray-300"
@@ -311,11 +311,11 @@ function VehiclePenetration({ activeStep }) {
                 </select>
               </div>
               {/* City */}
-              <div className="flex flex-col gap-1 min-w-[120px] max-w-[180px] w-full">
-                <label className="text-xs font-medium text-gray-600">City</label>
+              <div className="flex flex-col gap-1.5 min-w-[120px] max-w-[180px] w-full">
+                <label className="text-sm font-medium text-gray-600">City</label>
                 <select
                   disabled
-                  className={`bg-gray-300 text-gray-600 rounded px-2 py-1 w-full h-[32px] ${
+                  className={`bg-gray-300 text-gray-600 rounded px-3 py-2 w-full ${
                     theme === "dark" ? "border-gray-700" : "border-white"
                   }`}
                 >
@@ -326,7 +326,7 @@ function VehiclePenetration({ activeStep }) {
             {/* Projected Penetration upload button below City, right-aligned and smaller */}
             <div className="flex w-full justify-end mt-2">
               <label
-                className={`flex items-center font-semibold px-3 py-1.5 rounded cursor-pointer h-[36px] text-sm transition-colors duration-300 whitespace-nowrap w-full max-w-[300px]
+                className={`flex items-center font-semibold px-4 py-2.5 rounded cursor-pointer h-[44px] text-base transition-colors duration-300 whitespace-nowrap w-full max-w-[300px]
                   ${theme === "dark" ? "bg-blue-900 text-white" : "bg-blue-400 text-white"}`}
                 style={{ minWidth: 0 }}
               >
