@@ -118,17 +118,19 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
           </select>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-600">Daily / Annual</label>
-          <select
-            value={dailyAnnualSelection}
-            onChange={(e) => setDailyAnnualSelection(e.target.value)}
-            className="border rounded px-3 py-2 w-40 text-sm"
-          >
-            <option value="DAILY">Daily</option>
-            <option value="ANNUAL">Annual</option>
-          </select>
-        </div>
+        {showVehicle && (
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-600">Daily / Annual</label>
+            <select
+              value={dailyAnnualSelection}
+              onChange={(e) => setDailyAnnualSelection(e.target.value)}
+              className="border rounded px-3 py-2 w-40 text-sm"
+            >
+              <option value="DAILY">Daily</option>
+              <option value="ANNUAL">Annual</option>
+            </select>
+          </div>
+        )}
 
         {showVehicle && (
           <div className="flex flex-col gap-1">
@@ -158,8 +160,8 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
           </div>
         )}
 
-        {/* City dropdown */}
-        {(showVehicle || showGrid) && (
+        {/* City dropdown — only for Vehicle mode */}
+        {showVehicle && (
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-600">City</label>
             <select
