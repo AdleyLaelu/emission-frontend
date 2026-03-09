@@ -255,22 +255,6 @@ export default function VehicleChartR1R2({
 
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Compact legend row */}
-      <div className="flex items-center gap-5 mb-1 px-1 flex-shrink-0">
-        <div className="flex items-center gap-1.5">
-          <svg width="30" height="12" style={{ flexShrink: 0 }}>
-            <line x1="0" y1="6" x2="30" y2="6" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
-          <span className="text-[10px] font-semibold text-gray-800">City Average</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <svg width="30" height="12" style={{ flexShrink: 0 }}>
-            <line x1="0" y1="6" x2="30" y2="6" stroke="#888" strokeWidth="1" strokeLinecap="round" strokeOpacity="0.5" />
-          </svg>
-          <span className="text-[10px] text-gray-500">Census Tract <em>(click map to highlight)</em></span>
-        </div>
-      </div>
-
       {/* Chart — fills all remaining height */}
       <div className="relative w-full flex-1 min-h-0 border border-gray-400 rounded bg-white">
         <Line ref={chartRef} data={{ labels, datasets }} options={options} plugins={[chartBgPlugin]} />

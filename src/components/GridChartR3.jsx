@@ -275,9 +275,11 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
           callback: (_, index) => {
             const label = labels[index];
             if (!label) return "";
-            const year = label.split(" ").pop();
-            const firstIdx = labels.findIndex(l => l.split(" ").pop() === year);
-            return index === firstIdx ? year : "";
+            // label format: "2025-01-01 00:00:00"
+            const year = label.substring(0, 4);
+            const month = label.substring(5, 7);
+            // Show year label only on January of each year
+            return month === "01" ? year : "";
           },
         },
         title: { display: true, text: "Year", font: { size: 11 }, color: "#333" },
@@ -297,9 +299,9 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
   };
 
   return (
-    <div ref={containerRef} className="w-full flex flex-col gap-1">
-      {/* Chart — full width */}
-      <div className="relative w-full h-[160px] border border-gray-400 rounded bg-white">
+    <div ref={containerRef} className="w-full h-full flex flex-col">
+      {/* Chart — fills parent height, fallback 200px when no parent height set */}
+      <div className="relative w-full flex-1 border border-gray-400 rounded bg-white" style={{ minHeight: 200 }}>
         <Line ref={chartRef} data={{ labels, datasets }} options={options} plugins={[chartBgPlugin]} />
         <ZoomToolbar chartRef={chartRef} />
       </div>

@@ -20,6 +20,40 @@ const CITY_TO_STATE = {
   Atlanta: "GA", "Los Angeles": "CA", LosAngeles: "CA", NewYork: "NY", Seattle: "WA",
 };
 
+const CITY_OPTIONS = ["Atlanta", "Los Angeles", "New York", "Seattle"];
+
+const VEHICLE_TYPES = [
+  "Combination Long-haul Truck",
+  "Combination Short-haul Truck",
+  "Light Commercial Truck",
+  "Motorhome - Recreational Vehicle",
+  "Motorcycle",
+  "Other Buses",
+  "Passenger Car",
+  "Passenger Truck",
+  "Refuse Truck",
+  "School Bus",
+  "Single Unit Long-haul Truck",
+  "Single Unit Short-haul Truck",
+  "Transit Bus",
+];
+
+const VEHICLE_TYPE_COLORS = [
+  "#1f77b4",
+  "#ff7f0e",
+  "#2ca02c",
+  "#d62728",
+  "#9467bd",
+  "#8c564b",
+  "#e377c2",
+  "#7f7f7f",
+  "#bcbd22",
+  "#17becf",
+  "#a55194",
+  "#393b79",
+  "#637939",
+];
+
 const EMISSION_TYPES = [
   { label: "CO₂", value: "CO2" },
   { label: "NOₓ", value: "NOx" },
@@ -56,6 +90,7 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
   const ConsumptionAndEmissionState = useAppStore((s) => s.ConsumptionAndEmission);
   const setConsumptionAndEmission = useAppStore((s) => s.setConsumptionAndEmission);
   const classificationState = useAppStore((s) => s.classificationState);
+  const setClassificationState = useAppStore((s) => s.setClassificationState);
 
   const cityName     = classificationState.city || classificationState.cityInput;
   const fuelType     = ConsumptionAndEmissionState.FuelType || "";
@@ -64,24 +99,18 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
   const showVehicle  = resultsSelection === "VEHICLE";
   const showGrid     = resultsSelection === "GRID";
 
-  // Tract IDs for vehicle legend
-  const state    = CITY_TO_STATE[cityName] || CITY_TO_STATE[cityName?.replace(/\s/g, "")] || null;
-  const fileData = state ? DATA_MAP[`${state}_${chartMode}`] : null;
-  const firstMetric = fileData ? Object.keys(fileData)[0] : null;
-  const tractIds = firstMetric ? Object.keys(fileData[firstMetric]?.tracts || {}) : [];
-
   return (
-    <div className="flex flex-col gap-3 w-full h-full">
+    <div className="flex flex-col gap-3 w-full max-w-6xl mx-auto h-full">
 
-      {/* ── COMPACT CONTROL ROW ─────────────────────────────────────── */}
-      <div className="flex flex-row items-end gap-3 flex-wrap">
+      {/* ── CONTROL ROW ─────────────────────────────────────────────── */}
+      <div className="flex flex-row items-end gap-4 flex-wrap">
 
-        <div className="flex flex-col gap-[2px]">
-          <label className="text-xs font-medium text-gray-600">Vehicle / Grid</label>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-600">Vehicle / Grid</label>
           <select
             value={resultsSelection}
             onChange={(e) => setResultsSelection(e.target.value)}
-            className="border rounded px-2 py-1 w-40 text-sm"
+            className="border rounded px-3 py-2 w-44 text-sm"
           >
             <option value="">Select Vehicle/Grid</option>
             <option value="VEHICLE">Vehicle</option>
@@ -89,27 +118,25 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
           </select>
         </div>
 
-        {showVehicle && (
-          <div className="flex flex-col gap-[2px]">
-            <label className="text-xs font-medium text-gray-600">Daily / Annual</label>
-            <select
-              value={dailyAnnualSelection}
-              onChange={(e) => setDailyAnnualSelection(e.target.value)}
-              className="border rounded px-2 py-1 w-36 text-sm"
-            >
-              <option value="DAILY">Daily</option>
-              <option value="ANNUAL">Annual</option>
-            </select>
-          </div>
-        )}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-600">Daily / Annual</label>
+          <select
+            value={dailyAnnualSelection}
+            onChange={(e) => setDailyAnnualSelection(e.target.value)}
+            className="border rounded px-3 py-2 w-40 text-sm"
+          >
+            <option value="DAILY">Daily</option>
+            <option value="ANNUAL">Annual</option>
+          </select>
+        </div>
 
         {showVehicle && (
-          <div className="flex flex-col gap-[2px]">
-            <label className="text-xs font-medium text-gray-600">Fuel Type</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-600">Fuel Type</label>
             <select
               value={fuelType}
               onChange={(e) => setConsumptionAndEmission({ FuelType: e.target.value })}
-              className="border rounded px-2 py-1 w-36 text-sm"
+              className="border rounded px-3 py-2 w-44 text-sm"
             >
               <option value="">Select Fuel Type</option>
               {FUEL_TYPES.map(f => <option key={f} value={f}>{f}</option>)}
@@ -118,12 +145,12 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
         )}
 
         {showVehicle && (
-          <div className="flex flex-col gap-[2px]">
-            <label className="text-xs font-medium text-gray-600">Emission Type</label>
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-600">Emission Type</label>
             <select
               value={emissionType}
               onChange={(e) => setConsumptionAndEmission({ EmissionType: e.target.value })}
-              className="border rounded px-2 py-1 w-36 text-sm"
+              className="border rounded px-3 py-2 w-48 text-sm"
             >
               <option value="">Select Emission Type</option>
               {EMISSION_TYPES.map(e => <option key={e.value} value={e.value}>{e.label}</option>)}
@@ -131,70 +158,61 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
           </div>
         )}
 
-        {cityName && showVehicle && (
-          <div className="flex flex-col justify-end">
-            <button
-              type="button"
-              onClick={() => downloadCsv(cityName, chartMode)}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-1.5 text-sm font-semibold transition-colors"
+        {/* City dropdown */}
+        {(showVehicle || showGrid) && (
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-600">City</label>
+            <select
+              value={cityName || ""}
+              onChange={(e) => setClassificationState({ city: e.target.value })}
+              className="border rounded px-3 py-2 w-40 text-sm"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              DOWNLOAD
-            </button>
+              <option value="">Select City</option>
+              {CITY_OPTIONS.map(c => <option key={c} value={c === "New York" ? "NewYork" : c === "Los Angeles" ? "LosAngeles" : c}>{c}</option>)}
+            </select>
           </div>
         )}
 
-        {showGrid && cityName && (
-          <div className="flex flex-col justify-end">
-            <button
-              type="button"
-              onClick={() => downloadCsv(cityName, chartMode)}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded px-4 py-1.5 text-sm font-semibold transition-colors"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              DOWNLOAD
-            </button>
-          </div>
-        )}
+        <div className="flex flex-col justify-end">
+          <button
+            type="button"
+            onClick={() => downloadCsv(cityName, chartMode)}
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded px-5 py-2 text-sm font-semibold transition-colors"
+          >
+            DOWNLOAD
+          </button>
+        </div>
       </div>
 
       {/* ── CHARTS + LEGEND ─────────────────────────────────────────── */}
       <div className="flex flex-row gap-4 flex-1 min-h-0">
 
         {/* Charts — left, takes remaining width */}
-        <div className="flex-1 min-w-0 max-w-3xl flex flex-col gap-3 overflow-auto">
+        <div className="flex-1 min-w-0 flex flex-col gap-3 overflow-auto">
 
           {showVehicle && (
             <>
               {fuelType && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold text-gray-500">{fuelType} Consumption</span>
                   <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
                     <VehicleChartR1R2 metric={fuelType} cityName={cityName} mode={chartMode} />
                   </div>
+                  <span className="text-sm font-semibold text-gray-600 text-center">{fuelType} Consumption</span>
                 </div>
               )}
               {emissionType && (
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold text-gray-500">
-                    {EMISSION_TYPES.find(e => e.value === emissionType)?.label || emissionType} Emission
-                  </span>
                   <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
                     <VehicleChartR1R2 metric={emissionType} cityName={cityName} mode={chartMode} />
                   </div>
+                  <span className="text-sm font-semibold text-gray-600 text-center">
+                    {EMISSION_TYPES.find(e => e.value === emissionType)?.label || emissionType} Emission
+                  </span>
                 </div>
               )}
               {!fuelType && !emissionType && (
                 <div className="flex items-center justify-center h-40 text-gray-400 text-sm">
-                  Fuel Type and Emission Type were selected in the Analysis step.
+                  Select a Fuel Type or Emission Type to view the chart.
                 </div>
               )}
             </>
@@ -204,10 +222,10 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
             <div className="flex flex-col gap-3">
               {["CO2", "CH4", "N2O"].map((e, i) => (
                 <div key={e} className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold text-gray-500">{["CO₂", "CH₄", "N₂O"][i]}</span>
-                  <div className="p-1 rounded-lg bg-white border border-gray-200">
+                  <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
                     <GridChartR3 emissionType={e} cityName={cityName} showLegend={false} />
                   </div>
+                  <span className="text-sm font-semibold text-gray-600 text-center">{["CO₂", "CH₄", "N₂O"][i]}</span>
                 </div>
               ))}
             </div>
@@ -222,22 +240,16 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
 
         {/* ── RIGHT LEGEND PANEL ──────────────────────────────────────── */}
 
-        {/* Vehicle legend: census tracts */}
-        {showVehicle && tractIds.length > 0 && (
-          <div className="flex-shrink-0 w-52 border border-gray-200 rounded-lg bg-white p-3 overflow-y-auto self-start">
-            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Census Tracts</div>
-            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
-              <svg width="28" height="10" style={{ flexShrink: 0 }}>
-                <line x1="0" y1="5" x2="28" y2="5" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" />
-              </svg>
-              <span className="text-[10px] font-semibold text-gray-800">City Average</span>
-            </div>
-            {tractIds.map((id, idx) => (
-              <div key={id} className="flex items-center gap-2 py-0.5">
+        {/* Vehicle legend: Vehicle Types */}
+        {showVehicle && (
+          <div className="flex-shrink-0 w-60 border border-gray-200 rounded-lg bg-white p-3 overflow-y-auto self-start">
+            <div className="text-sm font-bold text-gray-800 mb-2">Vehicle Types</div>
+            {VEHICLE_TYPES.map((name, idx) => (
+              <div key={name} className="flex items-center gap-2 py-0.5">
                 <svg width="28" height="10" style={{ flexShrink: 0 }}>
-                  <line x1="0" y1="5" x2="28" y2="5" stroke={TRACT_COLORS[idx % TRACT_COLORS.length]} strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="0" y1="5" x2="28" y2="5" stroke={VEHICLE_TYPE_COLORS[idx % VEHICLE_TYPE_COLORS.length]} strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                <span className="text-[10px] text-gray-600 truncate">Tract {id}</span>
+                <span className="text-[11px] text-gray-700">{name}</span>
               </div>
             ))}
           </div>
