@@ -120,52 +120,51 @@ function InputStepper({ finalNext, activeStep, setActiveStep }) {
     else if (activeStep === 2) {
       const state = store.trafficVolumeState;
       const classState = store.classificationState;
-      
-      // Check if both files exist
+
+      // Warn if files are missing but still allow navigation
       if (!state.trafficVolumeFile || !state.trafficMFTParametersFile) {
         window.dispatchEvent(
-          new CustomEvent("app-notification", { detail: { text: "Please upload both Traffic Volume and MFD Parameters files" } })
+          new CustomEvent("app-notification", { detail: { text: "Traffic Volume or MFD Parameters file missing — you can upload them later." } })
         );
-        return;
-      }
+      } else {
+        const formData = new FormData();
+        formData.append("city_name", classState.city || classState.cityInput || "");
 
-      const formData = new FormData();
-      formData.append("city_name", classState.city || classState.cityInput || "");
-      
-      const storedTransactionId =
-        localStorage.getItem("transaction_id") || "emission-analysis-2025";
-      formData.append("transaction_id", storedTransactionId);
-      
-      formData.append("file1", state.trafficVolumeFile);
-      formData.append("file2", state.trafficMFTParametersFile);
+        const storedTransactionId =
+          localStorage.getItem("transaction_id") || "emission-analysis-2025";
+        formData.append("transaction_id", storedTransactionId);
 
-      try {
-        console.log("Uploading to /upload/traffic_volume...");
-        const res = await fetch("http://localhost:5003/upload/traffic_volume", {
-          method: "POST",
-          body: formData,
-        });
+        formData.append("file1", state.trafficVolumeFile);
+        formData.append("file2", state.trafficMFTParametersFile);
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Upload failed");
+        try {
+          console.log("Uploading to /upload/traffic_volume...");
+          const res = await fetch("http://localhost:5003/upload/traffic_volume", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || "Upload failed");
+          }
+
+          const data = await res.json();
+          console.log("Backend response:", data);
+          window.dispatchEvent(
+            new CustomEvent("app-notification", { detail: { text: "Traffic data uploaded successfully!" } })
+          );
+
+          if (data.transaction_id) {
+            localStorage.setItem("transaction_id", data.transaction_id);
+          }
+        } catch (err) {
+          console.error("Upload error:", err);
+          window.dispatchEvent(
+            new CustomEvent("app-notification", { detail: { text: "Upload failed: " + err.message } })
+          );
+          // Navigation still proceeds — user can retry upload later
         }
-
-        const data = await res.json();
-        console.log("Backend response:", data);
-        window.dispatchEvent(
-          new CustomEvent("app-notification", { detail: { text: "Traffic data uploaded successfully!" } })
-        );
-
-        if (data.transaction_id) {
-          localStorage.setItem("transaction_id", data.transaction_id);
-        }
-      } catch (err) {
-        console.error("Upload error:", err);
-        window.dispatchEvent(
-          new CustomEvent("app-notification", { detail: { text: "Upload failed: " + err.message } })
-        );
-        return; // Don't proceed to next step on error
       }
     }
     
@@ -244,7 +243,7 @@ function InputStepper({ finalNext, activeStep, setActiveStep }) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 pl-2 pt-0 mt-[-5rem] w-full">
+    <div className="flex flex-col gap-5 pt-0 mt-[-5rem] w-full">
       {/* Step-wise content */}
       <div className="w-full">
         {activeStep === 0 && <VehicleClassification activeStep={activeStep} />}

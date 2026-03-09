@@ -106,7 +106,6 @@ export default function VehicleChartR1R2({
 
   const { labels, unit, tracts } = metricData;
   const tractIds = Object.keys(tracts);
-  const ptRadius = mode === "R2" ? 5 : 4;
 
   // City average
   const avgData = labels.map((_, i) => {
@@ -145,9 +144,9 @@ export default function VehicleChartR1R2({
       if (ds._isAvg) return;
       const base = ds._baseColor;
       if (extIdx >= 0) {
-        ds.borderColor  = base;
-        ds.borderWidth  = i === extIdx ? (selIdx >= 0 ? 3 : 2) : 1;
-        ds.pointRadius  = i === extIdx && selIdx >= 0 ? ptRadius : 0;
+        ds.borderColor = base;
+        ds.borderWidth = i === extIdx ? (selIdx >= 0 ? 3 : 2) : 1;
+        ds.pointRadius = 0;
       } else {
         ds.borderColor = base;
         ds.borderWidth = 1; ds.pointRadius = 0;
@@ -179,8 +178,7 @@ export default function VehicleChartR1R2({
       label: `Tract ${tractId}`,
       data: tracts[tractId],
       borderColor, backgroundColor: "rgba(0,0,0,0)", borderWidth,
-      pointStyle: "circle", pointRadius, pointHoverRadius: 6,
-      pointBackgroundColor: "#ffffff", pointBorderColor: color, pointBorderWidth,
+      pointRadius: 0,
       tension: 0.4,
       _baseColor: color, _isAvg: false,
     };
@@ -189,8 +187,7 @@ export default function VehicleChartR1R2({
   const avgDataset = {
     label: "City Average", data: avgData,
     borderColor: "#1a1a1a", backgroundColor: "rgba(0,0,0,0)", borderWidth: 2.5,
-    pointStyle: "circle", pointRadius: mode === "R2" ? 5 : 0, pointHoverRadius: 6,
-    pointBackgroundColor: "#ffffff", pointBorderColor: "#1a1a1a", pointBorderWidth: 2,
+    pointRadius: 0,
     tension: 0.4, _baseColor: "#1a1a1a", _isAvg: true, order: 0,
   };
 

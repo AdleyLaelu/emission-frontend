@@ -93,7 +93,7 @@ export default function ArrowStepper() {
 
   return (
     <div
-      className="arrow-stepper flex flex-col gap-8 p-6"
+      className="arrow-stepper flex flex-col gap-8 py-6 px-2"
       style={{ minHeight: "calc(100vh - 185px)" }}
     >
       <style>{`
@@ -299,7 +299,7 @@ export default function ArrowStepper() {
         {/* Step Content (InputStepper, AnalysisStepper, GridEmissionRates) */}
         <div className="flex-1">
           {activeStep === 0 && (
-            <div className="flex flex-row items-center gap-4 p-4 bg-white">
+            <div className="flex flex-row items-center gap-4 p-2 bg-white">
               <InputStepper
                 finalNext={handleNext}
                 activeStep={inputSubStep}
@@ -308,7 +308,7 @@ export default function ArrowStepper() {
             </div>
           )}
           {activeStep === 1 && (
-            <div className="flex flex-row items-center gap-4 p-4 bg-white">
+            <div className="flex flex-row items-center gap-4 p-2 bg-white">
               <AnalysisStepper
                 finalNext={(direction) => {
                   if (direction === 'back') {
@@ -336,7 +336,7 @@ export default function ArrowStepper() {
             </div>
           )}
           {activeStep === 2 && (
-            <div className="p-4 bg-white" style={{ height: "calc(100vh - 390px)" }}>
+            <div className="p-2 bg-white" style={{ height: "calc(100vh - 390px)" }}>
               <FinalResultsPage
                 resultsSelection={resultsSelection}
                 setResultsSelection={setResultsSelection}
