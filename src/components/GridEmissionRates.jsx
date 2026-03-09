@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import useAppStore from "../useAppStore";
 import Atlanta from "../assets/Georgia.svg";
 import LosAngeles from "../assets/California.svg";
@@ -6,7 +6,7 @@ import Seattle from "../assets/Seattle.svg";
 import NewYork from "../assets/NewYork.svg";
 import gridDataImg from "../assets/griddata1.png";
 import VehicleStepper from "./VerticalStepper";
-import AnalysisImage from "./AnalysisImage";
+import GridChartR3 from "./GridChartR3";
 import {
   getAnalysisImgUrl,
   buildAnalysisFileName,
@@ -23,35 +23,6 @@ import {
 import Button from "@mui/material/Button";
 import { toast } from "react-toastify";
 
-// --- Reusable Zoom Toolbar Component ---
-const ZoomToolbar = ({ onZoomIn, onZoomOut, onReset }) => (
-  <div className="absolute top-4 right-4 z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none">
-    <button
-      onClick={onZoomIn}
-      className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-      title="Zoom In"
-      type="button"
-    >
-      +
-    </button>
-    <button
-      onClick={onZoomOut}
-      className="px-3 py-1 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-lg font-bold leading-none transition-colors"
-      title="Zoom Out"
-      type="button"
-    >
-      -
-    </button>
-    <button
-      onClick={onReset}
-      className="px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-gray-50 uppercase tracking-wide transition-colors"
-      title="Reset Zoom"
-      type="button"
-    >
-      RESET
-    </button>
-  </div>
-);
 
 const GridEmissionRates = ({ activeStep, isResults }) => {
   const classificationState = useAppStore((state) => state.classificationState);
@@ -182,18 +153,6 @@ const GridEmissionRates = ({ activeStep, isResults }) => {
     }
   };
 
-  // --- Zoom State for AnalysisImage ---
-  const [imageZoom, setImageZoom] = useState(1);
-
-  // Zoom Handlers (same as VehicleTrafficVolume)
-  const handleZoomIn = () => setImageZoom((prev) => Math.min(prev + 0.25, 3.5)); // Max zoom 3.5x
-  const handleZoomOut = () => setImageZoom((prev) => Math.max(prev - 0.25, 1)); // Min zoom 1x
-  const handleResetZoom = () => setImageZoom(1);
-
-  // Reset zoom when emission type or city changes
-  useEffect(() => {
-    setImageZoom(1);
-  }, [GridEmissionState.EmissionType, classificationState.cityInput]);
 
   return (
     <div className="flex flex-row items-stretch gap-6 pl-6 pt-4">
@@ -276,31 +235,11 @@ const GridEmissionRates = ({ activeStep, isResults }) => {
         </form>
         
         <div className="flex flex-row items-start gap-8 w-full">
-          <div className="flex-1 relative">
-            {classificationState.cityInput && GridEmissionState.EmissionType ? (
-              <div className="relative w-full max-w-[600px]">
-                <div className="w-full h-[220px] border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm group">
-                  <div className="w-full h-full overflow-auto" style={{overflow: 'auto', position: 'relative'}}>
-                    <img
-                      src={getAnalysisImgUrl(GridEmissionState.EmissionType, classificationState.cityInput)}
-                      alt="Grid Emission Plot"
-                      className="transition-all duration-200 ease-out origin-top-left max-w-none object-contain rounded"
-                      style={{
-                        width: `${imageZoom * 100}%`,
-                        height: 'auto',
-                        display: 'block',
-                      }}
-                      onError={e => { e.target.style.display = 'none'; }}
-                    />
-                  </div>
-                  <ZoomToolbar
-                    onZoomIn={handleZoomIn}
-                    onZoomOut={handleZoomOut}
-                    onReset={handleResetZoom}
-                  />
-                </div>
-              </div>
-            ) : null}
+          <div className="flex-1 max-w-3xl">
+            <GridChartR3
+              emissionType={GridEmissionState.EmissionType}
+              cityName={classificationState.cityInput}
+            />
           </div>
           <img
             src={gridDataImg}
