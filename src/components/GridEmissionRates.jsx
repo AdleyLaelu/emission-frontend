@@ -4,9 +4,8 @@ import Atlanta from "../assets/Georgia.svg";
 import LosAngeles from "../assets/California.svg";
 import Seattle from "../assets/Seattle.svg";
 import NewYork from "../assets/NewYork.svg";
-import gridDataImg from "../assets/griddata1.png";
 import VehicleStepper from "./VerticalStepper";
-import GridChartR3 from "./GridChartR3";
+import GridChartR3, { SCENARIO_COLORS } from "./GridChartR3";
 import {
   getAnalysisImgUrl,
   buildAnalysisFileName,
@@ -234,19 +233,33 @@ const GridEmissionRates = ({ activeStep, isResults }) => {
           </div>
         </form>
         
-        <div className="flex flex-row items-start gap-8 w-full">
+        <div className="flex flex-row items-center gap-8 w-full">
           <div className="flex-1 max-w-3xl">
             <GridChartR3
               emissionType={GridEmissionState.EmissionType}
               cityName={classificationState.cityInput}
+              showLegend={false}
             />
           </div>
-          <img
-            src={gridDataImg}
-            alt="Grid Data"
-            className="h-[280px] object-contain rounded border border-gray-100"
-            style={{ maxWidth: '99%', marginTop: '-56px', minHeight: '320px' }}
-          />
+          <div className="flex-shrink-0 border border-gray-200 rounded-lg bg-white p-3">
+            {[
+              "Mid-case Scenario",
+              "Low Renewable Energy and Battery Costs",
+              "High Renewable Energy and Battery Costs",
+              "High Demand Growth",
+              "Low Natural Gas Prices",
+              "High Natural Gas Prices",
+              "Low Renewable Energy and Battery Costs with High Natural Gas Prices",
+              "High Renewable Energy and Battery Costs with Low Natural Gas Prices",
+            ].map((name, idx) => (
+              <div key={name} className="flex items-center gap-2 py-0.5">
+                <svg width="28" height="10" style={{ flexShrink: 0 }}>
+                  <line x1="0" y1="5" x2="28" y2="5" stroke={SCENARIO_COLORS[idx]} strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span className="text-sm text-gray-700">{name}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>

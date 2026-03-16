@@ -66,7 +66,7 @@ const ZoomToolbar = ({ chartRef }) => {
     chart.update("none");
   };
   return (
-    <div className="absolute bottom-2 right-2 z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none">
+    <div className="absolute top-2 right-2 z-10 flex bg-white rounded border border-gray-300 shadow-sm overflow-hidden select-none">
       <button type="button" onClick={() => chartRef.current?.zoom(1.2)}
         className="px-2 py-0.5 text-blue-600 hover:bg-gray-50 border-r border-gray-200 text-sm font-bold leading-none">+</button>
       <button type="button" onClick={() => chartRef.current?.zoom(0.8)}
@@ -242,7 +242,7 @@ export default function VehicleChartR1R2({
         border: { display: true, color: "#444", width: 1 },
         grid: { display: true, color: "rgba(169,169,169,0.45)", lineWidth: 0.8, borderDash: [3, 2] },
         ticks: { maxTicksLimit: mode === "R2" ? 7 : 12, maxRotation: 45, font: { size: 10 }, color: "#444" },
-        title: { display: true, text: xLabel, font: { size: 11 }, color: "#333" },
+        title: { display: false },
       },
       y: {
         border: { display: true, color: "#444", width: 1 },

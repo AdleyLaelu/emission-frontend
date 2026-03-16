@@ -190,7 +190,7 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
       <div className="flex flex-row gap-4 flex-1 min-h-0">
 
         {/* Charts — left, takes remaining width */}
-        <div className="flex-1 min-w-0 flex flex-col gap-3 overflow-auto">
+        <div className="flex-1 min-w-0 flex flex-col gap-8 overflow-auto">
 
           {showVehicle && (
             <>
@@ -221,13 +221,10 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
           )}
 
           {showGrid && (
-            <div className="flex flex-col gap-3">
-              {["CO2", "CH4", "N2O"].map((e, i) => (
-                <div key={e} className="flex flex-col gap-1">
-                  <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
-                    <GridChartR3 emissionType={e} cityName={cityName} showLegend={false} />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-600 text-center">{["CO₂", "CH₄", "N₂O"][i]}</span>
+            <div className="flex flex-col gap-8">
+              {["CO2", "CH4", "N2O"].map((e) => (
+                <div key={e} className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
+                  <GridChartR3 emissionType={e} cityName={cityName} showLegend={false} />
                 </div>
               ))}
             </div>
@@ -260,13 +257,13 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
         {/* Grid legend: scenarios — shared across all 3 charts */}
         {showGrid && SCENARIO_NAMES.length > 0 && (
           <div className="flex-shrink-0 w-56 border border-gray-200 rounded-lg bg-white p-3 self-start">
-            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Scenarios</div>
+            <div className="text-sm font-bold text-gray-800 mb-2">Scenarios</div>
             {SCENARIO_NAMES.map((name, idx) => (
-              <div key={name} className="flex items-center gap-2 py-1">
+              <div key={name} className="flex items-center gap-2 py-0.5">
                 <svg width="28" height="10" style={{ flexShrink: 0 }}>
                   <line x1="0" y1="5" x2="28" y2="5" stroke={SCENARIO_COLORS[idx % SCENARIO_COLORS.length]} strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                <span className="text-[10px] text-gray-700 leading-tight">{name}</span>
+                <span className="text-[11px] text-gray-700">{name}</span>
               </div>
             ))}
           </div>
