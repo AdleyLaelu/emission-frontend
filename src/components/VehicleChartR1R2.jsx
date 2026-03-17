@@ -240,14 +240,14 @@ export default function VehicleChartR1R2({
     scales: {
       x: {
         border: { display: true, color: "#444", width: 1 },
-        grid: { display: true, color: "rgba(169,169,169,0.45)", lineWidth: 0.8, borderDash: [3, 2] },
-        ticks: { maxTicksLimit: mode === "R2" ? 7 : 12, maxRotation: 45, font: { size: 10 }, color: "#444" },
+        grid: { display: true, color: "rgba(169,169,169,0.15)", lineWidth: 0.8, drawTicks: false },
+        ticks: { maxTicksLimit: mode === "R2" ? 7 : 24, maxRotation: 45, font: { size: 10 }, color: "#444", padding: 4 },
         title: { display: false },
       },
       y: {
         border: { display: true, color: "#444", width: 1 },
-        grid: { display: true, color: "rgba(169,169,169,0.45)", lineWidth: 0.8, borderDash: [3, 2] },
-        ticks: { font: { size: 10 }, color: "#444" },
+        grid: { display: true, color: "rgba(169,169,169,0.15)", lineWidth: 0.8, drawTicks: false },
+        ticks: { font: { size: 10 }, color: "#444", padding: 4 },
         title: { display: true, text: unit, font: { size: 11 }, color: "#333" },
       },
     },

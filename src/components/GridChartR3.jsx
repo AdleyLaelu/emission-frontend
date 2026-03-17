@@ -264,14 +264,15 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
         border: { display: true, color: "#444", width: 1 },
         grid: {
           display: true,
-          color: "rgba(169,169,169,0.45)",
+          color: "rgba(169,169,169,0.15)",
           lineWidth: 0.8,
-          borderDash: [3, 2],
+          drawTicks: false,
         },
         ticks: {
           font: { size: 10 },
           color: "#444",
           maxRotation: 0,
+          padding: 4,
           callback: (_, index) => {
             const label = labels[index];
             if (!label) return "";
@@ -288,11 +289,11 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
         border: { display: true, color: "#444", width: 1 },
         grid: {
           display: true,
-          color: "rgba(169,169,169,0.45)",
+          color: "rgba(169,169,169,0.15)",
           lineWidth: 0.8,
-          borderDash: [3, 2],
+          drawTicks: false,
         },
-        ticks: { font: { size: 10 }, color: "#444" },
+        ticks: { font: { size: 10 }, color: "#444", padding: 4 },
         title: { display: true, text: yLabel, font: { size: 11 }, color: "#333" },
       },
     },
