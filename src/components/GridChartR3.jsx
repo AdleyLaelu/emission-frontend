@@ -212,7 +212,7 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
-    layout: { padding: { top: 4, right: 4, bottom: 4, left: 4 } },
+    layout: { padding: { top: 22, right: 24, bottom: 0, left: 0 } },
     hover: { mode: "nearest", intersect: false },
 
     onHover: (_evt, activeElements, chart) => {
@@ -269,10 +269,10 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
           drawTicks: false,
         },
         ticks: {
-          font: { size: 12 },
+          font: { size: 11 },
           color: "#444",
           maxRotation: 0,
-          padding: 6,
+          padding: 4,
           callback: (_, index) => {
             const label = labels[index];
             if (!label) return "";
@@ -283,7 +283,7 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
             return month === "01" ? year : "";
           },
         },
-        title: { display: true, text: "Year", font: { size: 13 }, color: "#333" },
+        title: { display: true, text: "Year", font: { size: 11 }, color: "#333", padding: { top: 0, bottom: 0 } },
       },
       y: {
         border: { display: true, color: "#444", width: 1 },
@@ -293,8 +293,11 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
           lineWidth: 0.8,
           drawTicks: false,
         },
-        ticks: { font: { size: 12 }, color: "#444", padding: 6 },
-        title: { display: true, text: yLabel, font: { size: 13 }, color: "#333" },
+        ticks: {
+          font: { size: 11 }, color: "#444", padding: 4,
+          ...(emissionType === "CH4" ? { stepSize: 20 } : { maxTicksLimit: 6 }),
+        },
+        title: { display: true, text: yLabel, font: { size: 11 }, color: "#333", padding: { top: 0, bottom: 0 } },
       },
       xTop: {
         position: "top",

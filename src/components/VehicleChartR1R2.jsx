@@ -77,6 +77,29 @@ const ZoomToolbar = ({ chartRef }) => {
   );
 };
 
+const FUEL_METRICS = new Set(["CNG", "Diesel", "Electricity", "Ethanol", "Gasoline"]);
+
+/** Pick a "nice" y-axis step so the chart gets ~5-8 evenly-spaced grid lines. */
+function niceStepSize(maxVal) {
+  if (!maxVal || maxVal <= 0) return undefined;
+  const rough = maxVal / 6;
+  const mag   = Math.pow(10, Math.floor(Math.log10(rough)));
+  const residual = rough / mag;
+  // Round up to the next "nice" number so we don't get too many ticks
+  let nice;
+  if (residual <= 1)        nice = 1;
+  else if (residual <= 2)   nice = 2;
+  else if (residual <= 5)   nice = 5;
+  else                      nice = 10;
+  return nice * mag;
+}
+
+// Fixed step sizes per mode; others use dynamic calculation
+const STEP_OVERRIDES = {
+  R1: { CNG: 0.2, Electricity: 0.01, Gasoline: 75, CO2: 0.75, "PM2.5T": 3 },
+  R2: { Gasoline: 1500, "PM2.5T": 75 },
+};
+
 export default function VehicleChartR1R2({
   metric, cityName, mode,
   selectedTractId = null,   // locked selection — from parent
@@ -203,9 +226,23 @@ export default function VehicleChartR1R2({
   const datasets = [...tractDatasets, avgDataset];
   const xLabel = mode === "R1" ? "Hour of Day" : "Year";
 
+  // Compute y-axis step size
+  const isFuel = FUEL_METRICS.has(metric);
+  const modeOverrides = STEP_OVERRIDES[mode] || {};
+  let yStepSize;
+  if (modeOverrides[metric] != null) {
+    // R1 fuel overrides (CNG, Electricity, Gasoline)
+    yStepSize = modeOverrides[metric];
+  } else if (mode === "R2" || isFuel) {
+    // R2 all metrics + R1 remaining fuels: compute dynamic step
+    let dataMax = 0;
+    tractIds.forEach(id => tracts[id].forEach(v => { if (v > dataMax) dataMax = v; }));
+    yStepSize = niceStepSize(dataMax);
+  }
+
   const options = {
     responsive: true, maintainAspectRatio: false, animation: false,
-    layout: { padding: { top: 4, right: 4, bottom: 4, left: 4 } },
+    layout: { padding: { top: 22, right: 24, bottom: 0, left: 0 } },
     hover: { mode: "nearest", intersect: false },
 
     onHover: (_evt, activeElements, chart) => {
@@ -256,8 +293,8 @@ export default function VehicleChartR1R2({
       x: {
         border: { display: true, color: "#444", width: 1 },
         grid: { display: true, color: "rgba(169,169,169,0.15)", lineWidth: 0.8, drawTicks: false },
-        ticks: { maxTicksLimit: mode === "R2" ? 7 : 24, maxRotation: 45, font: { size: 12 }, color: "#444", padding: 6 },
-        title: { display: true, text: xLabel, font: { size: 13 }, color: "#333" },
+        ticks: { maxTicksLimit: mode === "R2" ? 7 : 24, maxRotation: 45, font: { size: 11 }, color: "#444", padding: 4 },
+        title: { display: true, text: xLabel, font: { size: 11 }, color: "#333", padding: { top: 0, bottom: 0 } },
       },
       xTop: {
         position: "top",
@@ -268,8 +305,11 @@ export default function VehicleChartR1R2({
       y: {
         border: { display: true, color: "#444", width: 1 },
         grid: { display: true, color: "rgba(169,169,169,0.15)", lineWidth: 0.8, drawTicks: false },
-        ticks: { font: { size: 12 }, color: "#444", padding: 6 },
-        title: { display: true, text: unit, font: { size: 13 }, color: "#333" },
+        ticks: {
+          font: { size: 11 }, color: "#444", padding: 4,
+          ...(yStepSize ? { stepSize: yStepSize } : { maxTicksLimit: 8 }),
+        },
+        title: { display: true, text: unit, font: { size: 11 }, color: "#333", padding: { top: 0, bottom: 0 } },
       },
       yRight: {
         position: "right",

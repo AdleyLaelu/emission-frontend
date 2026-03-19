@@ -195,21 +195,13 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
           {showVehicle && (
             <>
               {fuelType && (
-                <div className="flex flex-col gap-1">
-                  <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
-                    <VehicleChartR1R2 metric={fuelType} cityName={cityName} mode={chartMode} />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-600 text-center">{fuelType} Consumption</span>
+                <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
+                  <VehicleChartR1R2 metric={fuelType} cityName={cityName} mode={chartMode} />
                 </div>
               )}
               {emissionType && (
-                <div className="flex flex-col gap-1">
-                  <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
-                    <VehicleChartR1R2 metric={emissionType} cityName={cityName} mode={chartMode} />
-                  </div>
-                  <span className="text-sm font-semibold text-gray-600 text-center">
-                    {EMISSION_TYPES.find(e => e.value === emissionType)?.label || emissionType} Emission
-                  </span>
+                <div className="w-full border border-gray-200 rounded-lg bg-white shadow-sm p-1" style={{ height: 220 }}>
+                  <VehicleChartR1R2 metric={emissionType} cityName={cityName} mode={chartMode} />
                 </div>
               )}
               {!fuelType && !emissionType && (
