@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -84,6 +84,8 @@ export default function VehicleChartR1R2({
   onTractSelect = () => {}, // (tractId | null) => void
 }) {
   const chartRef = useRef(null);
+  const [internalSelectedIdx, setInternalSelectedIdx] = useState(null);
+  const internalSelectedIdxRef = useRef(null);
 
   // Refs so imperative callbacks always see the latest prop values
   const selectedTractIdRef = useRef(selectedTractId);
@@ -113,44 +115,49 @@ export default function VehicleChartR1R2({
     return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
   });
 
-  // Resolve which tract index is "active" (locked > hovered)
-  const activeTractId = selectedTractId || hoveredTractId;
-  const activeIdx     = activeTractId ? tractIds.indexOf(activeTractId) : -1;
-  const isLocked      = selectedTractId !== null;
+  // Resolve which tract index is "active" (internal > external locked > hovered)
+  const extActiveTractId = selectedTractId || hoveredTractId;
+  const extActiveIdx     = extActiveTractId ? tractIds.indexOf(extActiveTractId) : -1;
+  const activeIdx        = internalSelectedIdx !== null ? internalSelectedIdx : extActiveIdx;
+  const isLocked         = internalSelectedIdx !== null || selectedTractId !== null;
 
   // ── Imperative helpers (chart-line hover only) ────────────────────────────
 
   const applyChartHover = (chart, hoverIdx) => {
-    // Chart-line hover only fires when nothing is externally locked
-    if (selectedTractIdRef.current !== null) return;
+    if (internalSelectedIdxRef.current !== null) return;
     chart.data.datasets.forEach((ds, i) => {
       if (ds._isAvg) return;
       const base = ds._baseColor;
-      ds.borderColor = base;
-      ds.borderWidth = i === hoverIdx ? 2.5 : 1;
+      if (i === hoverIdx) {
+        ds.borderColor = base;
+        ds.borderWidth = 2.5;
+      } else {
+        ds.borderColor = hexToRgba(base, 0.1);
+        ds.borderWidth = 1;
+      }
       ds.pointRadius = 0;
     });
     chart.update("none");
   };
 
   const clearChartHover = (chart) => {
-    const selId = selectedTractIdRef.current;
-    const hovId = hoveredTractIdRef.current;
-    const selIdx = selId ? tractIds.indexOf(selId) : -1;
-    const hovIdx = hovId ? tractIds.indexOf(hovId) : -1;
-    const extIdx = selIdx >= 0 ? selIdx : hovIdx;
-
+    const sel = internalSelectedIdxRef.current;
     chart.data.datasets.forEach((ds, i) => {
       if (ds._isAvg) return;
       const base = ds._baseColor;
-      if (extIdx >= 0) {
-        ds.borderColor = base;
-        ds.borderWidth = i === extIdx ? (selIdx >= 0 ? 3 : 2) : 1;
-        ds.pointRadius = 0;
+      if (sel !== null) {
+        if (i === sel) {
+          ds.borderColor = base;
+          ds.borderWidth = 3;
+        } else {
+          ds.borderColor = hexToRgba(base, 0.6);
+          ds.borderWidth = 1;
+        }
       } else {
-        ds.borderColor = base;
-        ds.borderWidth = 1; ds.pointRadius = 0;
+        ds.borderColor = hexToRgba(base, 0.7);
+        ds.borderWidth = 1.5;
       }
+      ds.pointRadius = 0;
     });
     chart.update("none");
   };
@@ -161,17 +168,19 @@ export default function VehicleChartR1R2({
     const color = TRACT_COLORS[idx % TRACT_COLORS.length];
     let borderColor, borderWidth, pointRadius, pointBorderWidth;
 
-    borderColor = color;
     if (activeIdx >= 0) {
       if (idx === activeIdx) {
+        borderColor = color;
         borderWidth = isLocked ? 3 : 2.5;
         pointRadius = isLocked ? ptRadius : 0;
         pointBorderWidth = isLocked ? 2 : 0;
       } else {
+        borderColor = hexToRgba(color, 0.6);
         borderWidth = 1; pointRadius = 0; pointBorderWidth = 0;
       }
     } else {
-      borderWidth = 1; pointRadius = 0; pointBorderWidth = 1.5;
+      borderColor = hexToRgba(color, 0.7);
+      borderWidth = 1.5; pointRadius = 0; pointBorderWidth = 1.5;
     }
 
     return {
@@ -202,19 +211,25 @@ export default function VehicleChartR1R2({
     onHover: (_evt, activeElements, chart) => {
       const overTract = activeElements.length > 0 && !chart.data.datasets[activeElements[0].datasetIndex]?._isAvg;
       chart.canvas.style.cursor = overTract ? "pointer" : "default";
-      if (selectedTractIdRef.current !== null) return;
+      if (internalSelectedIdxRef.current !== null) return;
       if (overTract) applyChartHover(chart, activeElements[0].datasetIndex);
       else clearChartHover(chart);
     },
 
     onClick: (_evt, activeElements) => {
       if (activeElements.length > 0) {
-        const ds = datasets[activeElements[0].datasetIndex];
+        const dsIdx = activeElements[0].datasetIndex;
+        const ds = datasets[dsIdx];
         if (!ds?._isAvg) {
-          const tractId = tractIds[activeElements[0].datasetIndex];
+          const newIdx = internalSelectedIdxRef.current === dsIdx ? null : dsIdx;
+          internalSelectedIdxRef.current = newIdx;
+          setInternalSelectedIdx(newIdx);
+          const tractId = tractIds[dsIdx];
           onTractSelect(selectedTractIdRef.current === tractId ? null : tractId);
         }
       } else {
+        internalSelectedIdxRef.current = null;
+        setInternalSelectedIdx(null);
         onTractSelect(null);
       }
     },
@@ -241,14 +256,26 @@ export default function VehicleChartR1R2({
       x: {
         border: { display: true, color: "#444", width: 1 },
         grid: { display: true, color: "rgba(169,169,169,0.15)", lineWidth: 0.8, drawTicks: false },
-        ticks: { maxTicksLimit: mode === "R2" ? 7 : 24, maxRotation: 45, font: { size: 10 }, color: "#444", padding: 4 },
-        title: { display: false },
+        ticks: { maxTicksLimit: mode === "R2" ? 7 : 24, maxRotation: 45, font: { size: 12 }, color: "#444", padding: 6 },
+        title: { display: true, text: xLabel, font: { size: 13 }, color: "#333" },
+      },
+      xTop: {
+        position: "top",
+        border: { display: true, color: "#444", width: 1 },
+        grid: { drawOnChartArea: false, drawTicks: false },
+        ticks: { display: false },
       },
       y: {
         border: { display: true, color: "#444", width: 1 },
         grid: { display: true, color: "rgba(169,169,169,0.15)", lineWidth: 0.8, drawTicks: false },
-        ticks: { font: { size: 10 }, color: "#444", padding: 4 },
-        title: { display: true, text: unit, font: { size: 11 }, color: "#333" },
+        ticks: { font: { size: 12 }, color: "#444", padding: 6 },
+        title: { display: true, text: unit, font: { size: 13 }, color: "#333" },
+      },
+      yRight: {
+        position: "right",
+        border: { display: true, color: "#444", width: 1 },
+        grid: { drawOnChartArea: false, drawTicks: false },
+        ticks: { display: false },
       },
     },
   };

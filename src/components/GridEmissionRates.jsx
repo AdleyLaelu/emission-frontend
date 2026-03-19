@@ -241,7 +241,7 @@ const GridEmissionRates = ({ activeStep, isResults }) => {
               showLegend={false}
             />
           </div>
-          <div className="flex-shrink-0 border border-gray-200 rounded-lg bg-white p-3">
+          <div className="flex-shrink-0 border border-gray-500 rounded-xl bg-white p-3 shadow-md">
             {[
               "Mid-case Scenario",
               "Low Renewable Energy and Battery Costs",

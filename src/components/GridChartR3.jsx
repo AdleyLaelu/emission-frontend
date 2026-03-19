@@ -269,10 +269,10 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
           drawTicks: false,
         },
         ticks: {
-          font: { size: 10 },
+          font: { size: 12 },
           color: "#444",
           maxRotation: 0,
-          padding: 4,
+          padding: 6,
           callback: (_, index) => {
             const label = labels[index];
             if (!label) return "";
@@ -283,7 +283,7 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
             return month === "01" ? year : "";
           },
         },
-        title: { display: false },
+        title: { display: true, text: "Year", font: { size: 13 }, color: "#333" },
       },
       y: {
         border: { display: true, color: "#444", width: 1 },
@@ -293,8 +293,20 @@ export default function GridChartR3({ emissionType, cityName, showLegend = true 
           lineWidth: 0.8,
           drawTicks: false,
         },
-        ticks: { font: { size: 10 }, color: "#444", padding: 4 },
-        title: { display: true, text: yLabel, font: { size: 11 }, color: "#333" },
+        ticks: { font: { size: 12 }, color: "#444", padding: 6 },
+        title: { display: true, text: yLabel, font: { size: 13 }, color: "#333" },
+      },
+      xTop: {
+        position: "top",
+        border: { display: true, color: "#444", width: 1 },
+        grid: { drawOnChartArea: false, drawTicks: false },
+        ticks: { display: false },
+      },
+      yRight: {
+        position: "right",
+        border: { display: true, color: "#444", width: 1 },
+        grid: { drawOnChartArea: false, drawTicks: false },
+        ticks: { display: false },
       },
     },
   };

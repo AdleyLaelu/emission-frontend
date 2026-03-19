@@ -231,8 +231,11 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
           )}
 
           {!resultsSelection && (
-            <div className="flex items-center justify-center h-40 text-gray-400 text-sm">
-              Select Vehicle or Grid above to view results.
+            <div className="flex flex-col items-center justify-center flex-1 min-h-[400px] border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+              <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span className="text-gray-400 text-base font-medium">Select Vehicle or Grid above to view results.</span>
             </div>
           )}
         </div>
@@ -241,7 +244,7 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
 
         {/* Vehicle legend: Vehicle Types */}
         {showVehicle && (
-          <div className="flex-shrink-0 w-60 border border-gray-200 rounded-lg bg-white p-3 overflow-y-auto self-start">
+          <div className="flex-shrink-0 w-60 border border-gray-500 rounded-xl bg-white p-3 shadow-md overflow-y-auto self-start">
             <div className="text-sm font-bold text-gray-800 mb-2">Vehicle Types</div>
             {VEHICLE_TYPES.map((name, idx) => (
               <div key={name} className="flex items-center gap-2 py-0.5">
@@ -256,7 +259,7 @@ const FinalResultsPage = ({ resultsSelection, setResultsSelection }) => {
 
         {/* Grid legend: scenarios — shared across all 3 charts */}
         {showGrid && SCENARIO_NAMES.length > 0 && (
-          <div className="flex-shrink-0 w-56 border border-gray-200 rounded-lg bg-white p-3 self-start">
+          <div className="flex-shrink-0 w-56 border border-gray-500 rounded-xl bg-white p-3 shadow-md self-start">
             <div className="text-sm font-bold text-gray-800 mb-2">Scenarios</div>
             {SCENARIO_NAMES.map((name, idx) => (
               <div key={name} className="flex items-center gap-2 py-0.5">
